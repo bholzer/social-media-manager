@@ -62,6 +62,18 @@ export default function AccountsPage() {
     }
   }, [searchParams, navigate]);
 
+  async function handleDisconnect(accountId: string) {
+    if (!window.confirm('Are you sure you want to disconnect this account? This cannot be undone.')) {
+      return;
+    }
+    try {
+      await api.delete(`/social-accounts/${accountId}`);
+      setAccounts(prev => prev.filter(a => a.id !== accountId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disconnect account');
+    }
+  }
+
   async function handleConnectFacebook() {
     setConnectingFacebook(true);
     setError('');
@@ -127,15 +139,23 @@ export default function AccountsPage() {
                     <p className="font-medium capitalize">{account.platform}</p>
                     <p className="text-sm text-gray-500">{account.platform_user_id}</p>
                   </div>
-                  {status === 'connected' ? (
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
-                      Connected
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                      Expired
-                    </span>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {status === 'connected' ? (
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                        Connected
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
+                        Expired
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleDisconnect(account.id)}
+                      className="text-sm text-red-600 hover:text-red-800 hover:underline"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
                 </li>
               );
             })}

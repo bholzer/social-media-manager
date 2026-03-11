@@ -13,7 +13,7 @@ This milestone adds Facebook account connection to the existing React client. Th
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Accounts Page** - Users can view their connected social accounts and their status
-- [ ] **Phase 2: Account Actions** - Users can connect Facebook and disconnect accounts
+- [x] **Phase 2: Account Actions** - Users can connect Facebook and disconnect accounts
 
 ## Phase Details
 
@@ -42,8 +42,8 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 02-01: Facebook OAuth initiation and callback handling
-- [ ] 02-02: Account disconnect action
+- [x] 02-01: Facebook OAuth initiation and callback handling
+- [x] 02-02: Account disconnect action
 
 ## Progress
 
@@ -53,4 +53,4 @@ Phases execute in numeric order: 1 → 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Accounts Page | 1/1 | Complete ✓ | 2026-03-11 |
-| 2. Account Actions | 0/2 | Not started | - |
+| 2. Account Actions | 2/2 | Complete ✓ | 2026-03-11 |

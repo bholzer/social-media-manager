@@ -39,11 +39,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ACCT-01 | Phase 1 | Pending |
+| ACCT-01 | Phase 1 | Complete |
 | ACCT-02 | Phase 2 | Pending |
 | ACCT-03 | Phase 2 | Pending |
 | ACCT-04 | Phase 2 | Pending |
-| ACCT-05 | Phase 1 | Pending |
+| ACCT-05 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 5 total
@@ -52,4 +52,4 @@
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after roadmap creation*
+*Last updated: 2026-03-11 after Phase 1 completion*

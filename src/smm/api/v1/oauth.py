@@ -71,18 +71,12 @@ async def facebook_callback(
     # Validate state
     state_data = _oauth_states.pop(state, None)
     if state_data is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired OAuth state",
-        )
+        return RedirectResponse(url=f"/accounts?error={quote('Invalid or expired OAuth state')}")
 
     # Check state age (10 min max)
     age = datetime.datetime.now(datetime.UTC) - state_data["created_at"]
     if age.total_seconds() > 600:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="OAuth state expired",
-        )
+        return RedirectResponse(url=f"/accounts?error={quote('OAuth state expired')}")
 
     user_id = uuid.UUID(state_data["user_id"])
 

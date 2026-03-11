@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 import bcrypt
-from jose import JWTError, jwt
+import jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,7 +35,7 @@ def decode_access_token(token: str) -> uuid.UUID | None:
         if sub is None:
             return None
         return uuid.UUID(sub)
-    except (JWTError, ValueError):
+    except (jwt.PyJWTError, ValueError):
         return None
 
 

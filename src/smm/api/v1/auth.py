@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from smm.dependencies import get_session
@@ -14,7 +15,7 @@ router = APIRouter()
 async def register(data: RegisterRequest, session: AsyncSession = Depends(get_session)):
     try:
         user = await register_user(session, data.email, data.password)
-    except Exception:
+    except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",

@@ -4,11 +4,11 @@ from urllib.parse import urlencode
 
 import httpx
 
+from smm.adapters.constants import GRAPH_API_BASE_URL
 from smm.config import settings
 
-GRAPH_API = "https://graph.facebook.com/v19.0"
 OAUTH_AUTHORIZE = "https://www.facebook.com/v19.0/dialog/oauth"
-OAUTH_TOKEN = f"{GRAPH_API}/oauth/access_token"
+OAUTH_TOKEN = f"{GRAPH_API_BASE_URL}/oauth/access_token"
 
 # Permissions needed to publish posts to pages
 SCOPES = "pages_show_list,pages_read_engagement,pages_manage_posts"
@@ -84,7 +84,7 @@ async def get_user_pages(user_token: str) -> list[FacebookPage]:
     """Fetch pages the user manages (needed for publishing)."""
     async with httpx.AsyncClient() as client:
         resp = await client.get(
-            f"{GRAPH_API}/me/accounts",
+            f"{GRAPH_API_BASE_URL}/me/accounts",
             params={"access_token": user_token},
         )
         resp.raise_for_status()
@@ -103,7 +103,7 @@ async def get_user_profile(token: str) -> dict:
     """Get the Facebook user's basic profile info."""
     async with httpx.AsyncClient() as client:
         resp = await client.get(
-            f"{GRAPH_API}/me",
+            f"{GRAPH_API_BASE_URL}/me",
             params={"access_token": token, "fields": "id,name"},
         )
         resp.raise_for_status()

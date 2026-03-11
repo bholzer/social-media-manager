@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -90,7 +91,7 @@ async def facebook_callback(
         long_tokens = await get_long_lived_token(
             short_tokens.access_token
         )
-    except Exception as e:
+    except httpx.HTTPError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Facebook token exchange failed: {e}",
@@ -99,7 +100,7 @@ async def facebook_callback(
     # Get pages the user manages
     try:
         pages = await get_user_pages(long_tokens.access_token)
-    except Exception as e:
+    except httpx.HTTPError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Failed to fetch Facebook pages: {e}",
@@ -109,7 +110,7 @@ async def facebook_callback(
         # No pages — connect the user's personal profile instead
         try:
             profile = await get_user_profile(long_tokens.access_token)
-        except Exception as e:
+        except httpx.HTTPError as e:
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Failed to fetch Facebook profile: {e}",
@@ -153,7 +154,7 @@ async def connect_facebook_page(
     # Get the page's own long-lived access token
     try:
         pages = await get_user_pages(data.oauth_user_token)
-    except Exception as e:
+    except httpx.HTTPError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Failed to fetch pages: {e}",

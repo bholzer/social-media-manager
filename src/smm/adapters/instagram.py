@@ -1,10 +1,11 @@
 import httpx
 
 from smm.adapters.base import AbstractPlatformAdapter, PublishResult
+from smm.adapters.constants import GRAPH_API_BASE_URL
 
 
 class InstagramAdapter(AbstractPlatformAdapter):
-    BASE_URL = "https://graph.facebook.com/v19.0"
+    BASE_URL = GRAPH_API_BASE_URL
 
     async def publish(
         self,

@@ -1,5 +1,7 @@
 import datetime
+import json
 import uuid
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import RedirectResponse
@@ -46,14 +48,14 @@ class ConnectPageRequest(BaseModel):
 async def facebook_connect(
     current_user: User = Depends(get_current_user),
 ):
-    """Redirect user to Facebook to authorize the app."""
+    """Return the Facebook authorization URL as JSON for frontend-initiated redirect."""
     state = generate_state()
     _oauth_states[state] = {
         "user_id": str(current_user.id),
         "created_at": datetime.datetime.now(datetime.UTC),
     }
     url = build_authorize_url(state)
-    return RedirectResponse(url=url)
+    return {"url": url}
 
 
 @router.get("/facebook/callback")
@@ -64,7 +66,7 @@ async def facebook_callback(
 ):
     """Handle Facebook OAuth callback.
 
-    Returns the user's Facebook Pages so they can choose which to connect.
+    Redirects to frontend routes with page data or error information.
     """
     # Validate state
     state_data = _oauth_states.pop(state, None)
@@ -91,29 +93,23 @@ async def facebook_callback(
             short_tokens.access_token
         )
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Facebook token exchange failed: {e}",
-        )
+        message = f"Facebook token exchange failed: {e}"
+        return RedirectResponse(url=f"/accounts?error={quote(message)}")
 
     # Get pages the user manages
     try:
         pages = await get_user_pages(long_tokens.access_token)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Failed to fetch Facebook pages: {e}",
-        )
+        message = f"Failed to fetch Facebook pages: {e}"
+        return RedirectResponse(url=f"/accounts?error={quote(message)}")
 
     if not pages:
         # No pages — connect the user's personal profile instead
         try:
             profile = await get_user_profile(long_tokens.access_token)
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail=f"Failed to fetch Facebook profile: {e}",
-            )
+            message = f"Failed to fetch Facebook profile: {e}"
+            return RedirectResponse(url=f"/accounts?error={quote(message)}")
 
         account = SocialAccount(
             user_id=user_id,
@@ -126,21 +122,16 @@ async def facebook_callback(
         session.add(account)
         await session.commit()
         await session.refresh(account)
-        return {
-            "message": "Facebook profile connected",
-            "account_id": str(account.id),
-            "platform_user_id": profile["id"],
-            "name": profile.get("name"),
-        }
+        return RedirectResponse(url="/accounts?connected=true")
 
-    # Return pages for the user to choose
-    return FacebookPagesResponse(
-        pages=[
-            FacebookPageResponse(page_id=p.page_id, name=p.name)
-            for p in pages
-        ],
-        oauth_user_token=long_tokens.access_token,
+    # Redirect to frontend callback page with pages data and token
+    pages_data = json.dumps([{"page_id": p.page_id, "name": p.name} for p in pages])
+    frontend_url = (
+        f"/accounts/facebook/callback"
+        f"?pages={quote(pages_data)}"
+        f"&token={quote(long_tokens.access_token)}"
     )
+    return RedirectResponse(url=frontend_url)
 
 
 @router.post("/facebook/connect-page")

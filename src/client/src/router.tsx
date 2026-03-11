@@ -6,6 +6,7 @@ import RegisterPage from '@/pages/RegisterPage';
 import DashboardPage from '@/pages/DashboardPage';
 import PostsPage from '@/pages/PostsPage';
 import AccountsPage from '@/pages/AccountsPage';
+import FacebookOAuthCallbackPage from '@/pages/FacebookOAuthCallbackPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) {
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'posts', element: <PostsPage /> },
       { path: 'accounts', element: <AccountsPage /> },
+      { path: 'accounts/facebook/callback', element: <FacebookOAuthCallbackPage /> },
     ],
   },
 ]);

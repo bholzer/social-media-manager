@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
 import { api } from '@/lib/api';
 
 interface SocialAccount {
@@ -23,8 +24,14 @@ export default function AccountsPage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [connectingFacebook, setConnectingFacebook] = useState(false);
 
-  useEffect(() => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  function fetchAccounts() {
+    setLoading(true);
     api.get<SocialAccount[]>('/social-accounts/')
       .then((data) => {
         setAccounts(data);
@@ -35,12 +42,59 @@ export default function AccountsPage() {
       .finally(() => {
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    fetchAccounts();
   }, []);
+
+  useEffect(() => {
+    const connected = searchParams.get('connected');
+    const errorParam = searchParams.get('error');
+
+    if (connected === 'true') {
+      setSuccessMessage('Facebook account connected successfully!');
+      fetchAccounts();
+      navigate('/accounts', { replace: true });
+    } else if (errorParam) {
+      setError(decodeURIComponent(errorParam));
+      navigate('/accounts', { replace: true });
+    }
+  }, [searchParams, navigate]);
+
+  async function handleConnectFacebook() {
+    setConnectingFacebook(true);
+    setError('');
+    try {
+      const data = await api.get<{ url: string }>('/oauth/facebook/connect');
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to initiate Facebook connection');
+      setConnectingFacebook(false);
+    }
+  }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Social Accounts</h1>
-      <p className="mt-2 text-gray-600">Manage your connected social media accounts.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Social Accounts</h1>
+          <p className="mt-2 text-gray-600">Manage your connected social media accounts.</p>
+        </div>
+        <button
+          onClick={handleConnectFacebook}
+          disabled={connectingFacebook}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {connectingFacebook ? 'Connecting...' : 'Connect Facebook'}
+        </button>
+      </div>
+
+      {successMessage && (
+        <div className="mt-4 rounded-md bg-green-50 p-4">
+          <p className="text-sm font-medium text-green-800">{successMessage}</p>
+        </div>
+      )}
 
       <div className="mt-6">
         {loading && (

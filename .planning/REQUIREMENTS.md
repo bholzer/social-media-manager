@@ -39,17 +39,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ACCT-01 | — | Pending |
-| ACCT-02 | — | Pending |
-| ACCT-03 | — | Pending |
-| ACCT-04 | — | Pending |
-| ACCT-05 | — | Pending |
+| ACCT-01 | Phase 1 | Pending |
+| ACCT-02 | Phase 2 | Pending |
+| ACCT-03 | Phase 2 | Pending |
+| ACCT-04 | Phase 2 | Pending |
+| ACCT-05 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5 ⚠️
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap creation*

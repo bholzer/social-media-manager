@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from smm.api.v1 import auth, posts, social_accounts, users
+from smm.api.v1 import auth, oauth, posts, social_accounts, users
 from smm.scheduler.scheduler import start_scheduler, stop_scheduler
 
 
@@ -25,6 +25,7 @@ app.include_router(
     social_accounts.router, prefix="/api/v1/social-accounts", tags=["social-accounts"]
 )
 app.include_router(posts.router, prefix="/api/v1/posts", tags=["posts"])
+app.include_router(oauth.router, prefix="/api/v1/oauth", tags=["oauth"])
 
 
 @app.get("/health")

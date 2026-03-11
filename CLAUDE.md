@@ -17,6 +17,9 @@ uv run uvicorn smm.main:app --reload
 # Run Dramatiq worker (separate process)
 uv run dramatiq smm.workers.tasks
 
+# Run React client
+cd src/client && npm run dev
+
 # Tests
 uv run pytest                              # all tests
 uv run pytest tests/unit/                  # unit only
@@ -64,6 +67,22 @@ Double-publish prevention: status set to `publishing` before enqueue; worker re-
 ### Authentication
 
 JWT (HS256) for API auth. `get_current_user` dependency extracts and validates Bearer tokens. Facebook OAuth flow uses a separate set of endpoints (`/api/v1/oauth/facebook/*`) that exchange codes for long-lived tokens and store page access tokens.
+
+### Account connection flow
+
+The Facebook OAuth connect flow spans backend and frontend:
+
+1. Frontend calls `GET /api/v1/oauth/facebook/connect` (with Bearer token via `api.get()`), receives `{"url": "..."}` JSON
+2. Frontend navigates to the Facebook OAuth URL via `window.location.href`
+3. Facebook redirects back to `GET /api/v1/oauth/facebook/callback` on the backend
+4. Backend exchanges code for tokens, then redirects to frontend:
+   - With pages: `302` to `/accounts/facebook/callback?pages=<encoded>&token=<token>`
+   - Profile only: `302` to `/accounts?connected=true`
+   - Error: `302` to `/accounts?error=<message>`
+5. `FacebookOAuthCallbackPage` handles page selection, calls `POST /api/v1/oauth/facebook/connect-page`
+6. User lands on `/accounts` with success banner and refreshed account list
+
+Key detail: `/facebook/connect` returns JSON (not a redirect) because browser navigation can't send the Authorization header.
 
 ### Test infrastructure
 

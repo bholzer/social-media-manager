@@ -25,7 +25,7 @@ export default function AccountsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get<SocialAccount[]>('/social_accounts/')
+    api.get<SocialAccount[]>('/social-accounts/')
       .then((data) => {
         setAccounts(data);
       })

@@ -12,32 +12,18 @@ interface User {
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const formData = new URLSearchParams();
-  formData.append('username', email);
-  formData.append('password', password);
-
-  const response = await fetch('/api/v1/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.detail ?? 'Login failed');
-  }
-
-  const data: AuthResponse = await response.json();
+  const data = await api.post<AuthResponse>('/auth/login', { email, password });
   localStorage.setItem('token', data.access_token);
   return data;
 }
 
-export async function register(email: string, password: string, fullName?: string): Promise<User> {
-  return api.post<User>('/auth/register', {
+export async function register(email: string, password: string): Promise<AuthResponse> {
+  const data = await api.post<AuthResponse>('/auth/register', {
     email,
     password,
-    full_name: fullName,
   });
+  localStorage.setItem('token', data.access_token);
+  return data;
 }
 
 export function logout() {

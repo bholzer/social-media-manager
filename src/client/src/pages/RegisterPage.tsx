@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { register, login } from '@/lib/auth';
+import { register } from '@/lib/auth';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -16,8 +16,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password, fullName || undefined);
-      await login(email, password);
+      await register(email, password);
       navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
